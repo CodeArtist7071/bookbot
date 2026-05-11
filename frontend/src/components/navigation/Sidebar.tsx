@@ -36,7 +36,7 @@ const Sidebar: React.FC = () => {
 
 
   return (
-    <aside className="w-64 bg-white border-r min-h-screen flex flex-col">
+    <aside className="w-64 bg-white border-r hidden min-h-screen md:flex flex-col">
       <div className="p-6 border-b">
         <Link to="/dashboard" className="flex items-center gap-3">
           <span className="text-2xl">🤖</span>
