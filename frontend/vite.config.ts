@@ -6,5 +6,5 @@ export default defineConfig({
   plugins: [ react(),
     tailwindcss(),
   ],
-  base:"https://codeartist7071.github.io/bookbot/"
+  base:"https://bookbot2-1-xg21.onrender.com"
 })
