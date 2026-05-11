@@ -1,0 +1,26 @@
+services:
+  # Web Service
+  - type: web
+    name: tech-bot-backend
+    env: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+    
+  # Background Service for WhatsApp sessions
+  - type: worker
+    name: whatsapp-worker
+    env: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "node index.js"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10001
