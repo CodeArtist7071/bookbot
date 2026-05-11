@@ -36,6 +36,44 @@ jobs:
           echo "VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}" > .env.production
           echo "VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}" >> .env.production
 
+      # ---------- DEBUG STEPS START ----------
+      - name: Debug - Check env file existence
+        working-directory: ./frontend
+        run: |
+          if [ -f .env.production ]; then
+            echo "✅ .env.production file exists"
+            echo "File size: $(wc -c < .env.production) bytes"
+            echo "File permissions: $(stat -c %A .env.production)"
+          else
+            echo "❌ .env.production file is MISSING"
+            exit 1
+          fi
+
+      - name: Debug - Verify variables are set (safe)
+        working-directory: ./frontend
+        run: |
+          source .env.production
+          if [ -n "$VITE_SUPABASE_URL" ]; then
+            echo "✅ VITE_SUPABASE_URL is set (length: ${#VITE_SUPABASE_URL})"
+          else
+            echo "❌ VITE_SUPABASE_URL is empty or missing"
+            exit 1
+          fi
+
+          if [ -n "$VITE_SUPABASE_ANON_KEY" ]; then
+            echo "✅ VITE_SUPABASE_ANON_KEY is set (length: ${#VITE_SUPABASE_ANON_KEY})"
+          else
+            echo "❌ VITE_SUPABASE_ANON_KEY is empty or missing"
+            exit 1
+          fi
+
+      - name: Debug - Show first 8 chars of URL (truncated, safe)
+        working-directory: ./frontend
+        run: |
+          source .env.production
+          echo "Supabase URL starts with: ${VITE_SUPABASE_URL:0:8}***"
+      # ---------- DEBUG STEPS END ----------
+
       - name: Build
         run: npm run build
         working-directory: ./frontend
