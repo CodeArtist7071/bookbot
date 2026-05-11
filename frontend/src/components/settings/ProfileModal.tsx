@@ -61,6 +61,7 @@ export default function ProfileModal({
         updated_at: new Date().toISOString(),
       };
 
+      // Update business_profiles table
       const { data, error: supaError } = await supabase
         .from("business_profiles")
         .update(updates)
@@ -69,6 +70,20 @@ export default function ProfileModal({
         .single();
 
       if (supaError) throw supaError;
+
+      // Also update user metadata to keep in sync with signup data
+      const { error: metadataError } = await supabase.auth.updateUser({
+        data: {
+          phone: form.phone.trim() || null,
+          business_name: form.business_name.trim(),
+          email: form.email.trim() || null,
+        }
+      });
+
+      if (metadataError) {
+        console.warn("Failed to update user metadata:", metadataError);
+        // Don't fail the whole operation if metadata update fails
+      }
 
       onSaved(data as BusinessProfile);
       onToast({ type: "success", message: "Business profile updated." });

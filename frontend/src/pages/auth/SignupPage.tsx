@@ -42,10 +42,14 @@ export default function BusinessSignup() {
       const normalizedPhone = `${code}${national}`;
 
       await signUp(formData.email, formData.password, {
-        business_name: formData.businessName,
+        sub: "", // Will be populated by Supabase
+        email: formData.email,
         owner_name: formData.ownerName,
+        business_name: formData.businessName,
         business_type: formData.businessType,
         phone: normalizedPhone,
+        email_verified: false, // Will be updated by Supabase
+        phone_verified: false,
       });
       // Supabase by default might require email verification, 
       // but if it's disabled, it will log the user in.
