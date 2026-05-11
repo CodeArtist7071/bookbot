@@ -1,0 +1,17 @@
+services:
+  # Web Service for React Frontend
+  - type: web
+    name: bookbot-frontend
+    env: static
+    plan: free
+    buildCommand: "npm run build"
+    staticPublishPath: dist
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_SUPABASE_URL
+        value: your_supabase_url_here
+      - key: VITE_SUPABASE_ANON_KEY
+        value: your_supabase_anon_key_here
+      - key: VITE_BACKEND_URL
+        value: https://bookbot2-5mce.onrender.com
