@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "1.0.0",
   "main": "eslint.config.js",
+  "homepage": "https://codeartist7071.github.io/bookbot/",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

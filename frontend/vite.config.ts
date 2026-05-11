@@ -6,4 +6,5 @@ export default defineConfig({
   plugins: [ react(),
     tailwindcss(),
   ],
+  base:"https://codeartist7071.github.io/bookbot/"
 })
