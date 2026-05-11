@@ -21,7 +21,7 @@ export default function WhatsAppQRSetup() {
   useEffect(() => {
     if (!user) return;
 
-    const newSocket = io("https://codeartist7071.github.io/bookbot/"); // Update with your backend URL
+    const newSocket = io("https://bookbot-03fm.onrender.com"); // Update with your backend URL
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
