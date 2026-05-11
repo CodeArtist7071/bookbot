@@ -18,15 +18,37 @@ export default function ProfileModal({
   onToast: (t: { type: "success" | "error"; message: string }) => void;
 }) {
   const initial = useMemo(
-    () => ({
-      business_name: profile.business_name ?? "",
-      description: profile.description ?? "",
-      logo_url: profile.logo_url ?? "",
-      phone: profile.phone ?? "",
-      email: profile.email ?? "",
-      website: profile.website ?? "",
-      address: profile.address ?? "",
-    }),
+    () => {
+      // Parse existing phone to separate country code and national number
+      const existingPhone = profile.phone ?? "";
+      let countryCode = "+91";
+      let nationalNumber = existingPhone;
+      
+      // Extract country code if present
+      if (existingPhone.startsWith("+")) {
+        const match = existingPhone.match(/^\+(\d{1,3})(\d+)$/);
+        if (match) {
+          countryCode = "+" + match[1];
+          nationalNumber = match[2];
+        }
+      } else if (existingPhone.length > 10) {
+        // Assume first 1-3 digits are country code
+        countryCode = "+" + existingPhone.slice(0, existingPhone.length - 10);
+        nationalNumber = existingPhone.slice(-10);
+      }
+      
+      return {
+        business_name: profile.business_name ?? "",
+        description: profile.description ?? "",
+        logo_url: profile.logo_url ?? "",
+        phone: profile.phone ?? "",
+        phoneCountryCode: countryCode,
+        phoneNationalNumber: nationalNumber,
+        email: profile.email ?? "",
+        website: profile.website ?? "",
+        address: profile.address ?? "",
+      };
+    },
     [profile]
   );
 
@@ -50,11 +72,16 @@ export default function ProfileModal({
 
     setSaving(true);
     try {
+      // Combine country code and national number for full phone
+      const fullPhone = form.phoneCountryCode && form.phoneNationalNumber 
+        ? `${form.phoneCountryCode}${form.phoneNationalNumber.replace(/\D/g, '')}`
+        : form.phone?.trim() || null;
+
       const updates = {
         business_name: form.business_name.trim(),
         description: form.description.trim() || null,
         logo_url: form.logo_url.trim() || null,
-        phone: form.phone.trim() || null,
+        phone: fullPhone,
         email: form.email.trim() || null,
         website: form.website.trim() || null,
         address: form.address.trim() || null,
@@ -74,7 +101,7 @@ export default function ProfileModal({
       // Also update user metadata to keep in sync with signup data
       const { error: metadataError } = await supabase.auth.updateUser({
         data: {
-          phone: form.phone.trim() || null,
+          phone: fullPhone,
           business_name: form.business_name.trim(),
           email: form.email.trim() || null,
         }
@@ -163,12 +190,40 @@ export default function ProfileModal({
           </div>
         ) : null}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field
-            label="Phone"
-            value={form.phone}
-            onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
-          />
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <label className="mb-2 block text-sm font-bold text-slate-800">
+              Phone Number <span className="text-red-500">*</span>
+            </label>
+            <div className="grid grid-cols-[120px_1fr] gap-3">
+              <select
+                value={form.phoneCountryCode || "+91"}
+                onChange={(e) => setForm((f) => ({ ...f, phoneCountryCode: e.target.value }))}
+                className="w-full h-14 rounded-2xl border border-slate-200 bg-slate-50 px-4 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-600 transition"
+              >
+                <option value="+1">+1 (US/CA)</option>
+                <option value="+44">+44 (UK)</option>
+                <option value="+49">+49 (DE)</option>
+                <option value="+61">+61 (AU)</option>
+                <option value="+64">+64 (NZ)</option>
+                <option value="+65">+65 (SG)</option>
+                <option value="+91">+91 (IN)</option>
+                <option value="+92">+92 (PK)</option>
+                <option value="+93">+93 (AF)</option>
+                <option value="+94">+94 (LK)</option>
+                <option value="+95">+95 (MM)</option>
+                <option value="+971">+971 (AE)</option>
+                <option value="+966">+966 (SA)</option>
+              </select>
+              <input
+                type="tel"
+                value={form.phoneNationalNumber || ""}
+                onChange={(e) => setForm((f) => ({ ...f, phoneNationalNumber: e.target.value }))}
+                placeholder="Phone number"
+                className="w-full h-14 rounded-2xl border border-slate-200 bg-slate-50 px-4 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-600 transition"
+              />
+            </div>
+          </div>
           <Field
             label="Email"
             value={form.email}

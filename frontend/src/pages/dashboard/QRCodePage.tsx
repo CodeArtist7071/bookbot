@@ -36,11 +36,27 @@ const QRCodePage: React.FC<QRCodePageProps> = ({
       console.warn("QRCodePage: No business phone available");
       return "";
     }
+    
+    // Clean phone number for WhatsApp: remove all non-digits and ensure it has country code
+    let cleanPhone = resolvedBusinessPhone.replace(/\D/g, '');
+    
+    // If phone doesn't start with country code pattern, add default
+    if (!cleanPhone.startsWith('91') && cleanPhone.length === 10) {
+      // Assume India (+91) for 10-digit numbers
+      cleanPhone = '91' + cleanPhone;
+    }
+    
+    // Remove leading + if present (wa.me doesn't need it)
+    cleanPhone = cleanPhone.replace(/^\+/, '');
+    
     const message = (welcomeMessage ?? "").replace(
       /\{\{\s*business_name\s*\}\}/g,
       resolvedBusinessName ?? "your business"
     );
-    const link = `https://wa.me/${resolvedBusinessPhone}?text=${encodeURIComponent(message)}`;
+    
+    const link = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    console.log("QRCodePage: Original phone:", resolvedBusinessPhone);
+    console.log("QRCodePage: Cleaned phone:", cleanPhone);
     console.log("QRCodePage: Generated WhatsApp link:", link);
     return link;
   }, [resolvedBusinessPhone, welcomeMessage, resolvedBusinessName]);
