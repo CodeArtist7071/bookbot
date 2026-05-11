@@ -18,18 +18,31 @@ const QRCodePage: React.FC<QRCodePageProps> = ({
   const { user } = useAuth();
   const [copied, setCopied] = useState(false);
 
+  // Debug: Log user data
+  console.log("QRCodePage: User data:", user);
+  console.log("QRCodePage: User metadata:", user?.user_metadata);
+
   const resolvedBusinessPhone =
     businessPhone ?? (user?.user_metadata?.phone as string | undefined) ?? null;
   const resolvedBusinessName =
     businessName ?? (user?.user_metadata?.business_name as string | undefined) ?? null;
 
+  // Debug: Log resolved values
+  console.log("QRCodePage: Resolved phone:", resolvedBusinessPhone);
+  console.log("QRCodePage: Resolved business name:", resolvedBusinessName);
+
   const whatsappLink = useMemo(() => {
-    if (!resolvedBusinessPhone) return "";
+    if (!resolvedBusinessPhone) {
+      console.warn("QRCodePage: No business phone available");
+      return "";
+    }
     const message = (welcomeMessage ?? "").replace(
       /\{\{\s*business_name\s*\}\}/g,
       resolvedBusinessName ?? "your business"
     );
-    return `https://wa.me/${resolvedBusinessPhone}?text=${encodeURIComponent(message)}`;
+    const link = `https://wa.me/${resolvedBusinessPhone}?text=${encodeURIComponent(message)}`;
+    console.log("QRCodePage: Generated WhatsApp link:", link);
+    return link;
   }, [resolvedBusinessPhone, welcomeMessage, resolvedBusinessName]);
 
   const downloadQRCode = () => {

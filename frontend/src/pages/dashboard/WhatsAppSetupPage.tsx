@@ -25,9 +25,20 @@ export default function WhatsAppQRSetup() {
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
-      console.log("Socket connected");
+      console.log("Socket connected to backend");
+      console.log("User ID:", user.id);
       newSocket.emit("join", user.id);
       newSocket.emit("whatsapp.checkStatus", user.id);
+    });
+
+    newSocket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error);
+      setStatus('error');
+    });
+
+    newSocket.on("disconnect", () => {
+      console.log("Socket disconnected");
+      setStatus('idle');
     });
 
 
